@@ -1,4 +1,3 @@
-
 import requests
 from PIL import Image, ImageOps
 import io
