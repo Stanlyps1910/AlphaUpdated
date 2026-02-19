@@ -1,5 +1,6 @@
-import { motion } from 'framer-motion';
 
+
+import { motion } from 'framer-motion';
 import yogeshImg from '../assets/yogesh.jpg';
 import sachithaImg from '../assets/sachitha.jpg';
 

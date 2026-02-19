@@ -59,7 +59,7 @@ const Gallery = () => {
                             setCloudData(prev => ({ ...prev, [cat.id]: urls }));
                         }
                     })
-                    .catch(e => {
+                    .catch(() => {
                         // Silent fail, just use local
                     });
             });
@@ -95,13 +95,22 @@ const Gallery = () => {
 
     const openAlbum = (category) => {
         setSelectedAlbum(category);
-        document.body.style.overflow = 'hidden';
     };
 
     const closeAlbum = () => {
         setSelectedAlbum(null);
-        document.body.style.overflow = 'unset';
     };
+
+    useEffect(() => {
+        if (selectedAlbum) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [selectedAlbum]);
 
     return (
         <section id="gallery" className="py-24 px-6 max-w-7xl mx-auto">
