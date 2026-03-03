@@ -9,19 +9,35 @@ const GetQuote = () => {
         email: '',
         date: '',
         budget: '',
-        message: ''
+        message: '',
+        eventTypes: [],
+        customEvent: ''
     });
+
+    const eventOptions = ['Wedding', 'Pre-Wedding', 'Engagement', 'Haldi', 'Sangeet', 'Others'];
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const handleEventTypeChange = (type) => {
+        const updatedTypes = formData.eventTypes.includes(type)
+            ? formData.eventTypes.filter(t => t !== type)
+            : [...formData.eventTypes, type];
+        setFormData({ ...formData, eventTypes: updatedTypes });
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        const selectedEvents = formData.eventTypes.map(t =>
+            t === 'Others' && formData.customEvent ? `${t} (${formData.customEvent})` : t
+        ).join(', ');
 
         const text = `*New Quote Request*\n\n` +
             `*Name:* ${formData.firstName} ${formData.lastName}\n` +
             `*Email:* ${formData.email}\n` +
+            `*Event Types:* ${selectedEvents || 'Not specified'}\n` +
             `*Date:* ${formData.date}\n` +
             `*Budget:* ${formData.budget}\n` +
             `*Message:* ${formData.message}`;
@@ -49,8 +65,8 @@ const GetQuote = () => {
                                 We would love to hear your story. Please fill out the form and we will get back to you shortly.
                             </p>
                             <div className="space-y-4 text-sm tracking-wide text-gray-800">
-                                <p>EMAIL: hello@teamalpha.com</p>
-                                <p>PHONE: +91 98765 43210</p>
+                                <p>EMAIL: Teamalphacrews@gmail.com</p>
+                                <p>PHONE: +91 9110603953</p>
                             </div>
                         </motion.div>
                     </div>
@@ -87,6 +103,40 @@ const GetQuote = () => {
                                 required
                                 className="bg-transparent border-b border-gray-400 py-3 focus:outline-none focus:border-black transition w-full placeholder-gray-500 font-light"
                             />
+
+                            {/* Type of Event Multi-select */}
+                            <div className="space-y-4">
+                                <p className="text-sm text-gray-500 font-light uppercase tracking-widest">Type of Event *</p>
+                                <div className="flex flex-wrap gap-3">
+                                    {eventOptions.map(type => (
+                                        <button
+                                            key={type}
+                                            type="button"
+                                            onClick={() => handleEventTypeChange(type)}
+                                            className={`px-4 py-2 text-xs border transition-all duration-300 ${formData.eventTypes.includes(type)
+                                                    ? 'bg-black text-white border-black'
+                                                    : 'border-gray-300 text-gray-600 hover:border-black'
+                                                }`}
+                                        >
+                                            {type}
+                                        </button>
+                                    ))}
+                                </div>
+                                {formData.eventTypes.includes('Others') && (
+                                    <motion.input
+                                        initial={{ opacity: 0, scaleY: 0 }}
+                                        animate={{ opacity: 1, scaleY: 1 }}
+                                        type="text"
+                                        name="customEvent"
+                                        value={formData.customEvent}
+                                        onChange={handleChange}
+                                        placeholder="Please specify your event *"
+                                        required
+                                        className="bg-transparent border-b border-gray-400 py-3 focus:outline-none focus:border-black transition w-full placeholder-gray-500 font-light"
+                                    />
+                                )}
+                            </div>
+
                             <div className="grid md:grid-cols-2 gap-8">
                                 <input
                                     type="text"

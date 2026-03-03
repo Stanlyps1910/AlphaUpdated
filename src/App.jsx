@@ -4,6 +4,7 @@ import Hero from './components/Hero';
 import About from './components/About';
 import Services from './components/Services';
 import Gallery from './components/Gallery';
+import Testimonials from './components/Testimonials';
 import GetQuote from './components/GetQuote';
 import AuthPage from './components/AuthPage';
 import Footer from './components/Footer';
@@ -20,6 +21,7 @@ function App() {
               <About />
               <Services />
               <Gallery />
+              <Testimonials />
             </>
           } />
           <Route path="/quote" element={<GetQuote />} />

@@ -41,13 +41,22 @@ const Navbar = () => {
     }
   };
 
+  const textColor = scrolled || !isHomePage ? 'text-[#3A3A3A]' : 'text-white';
+
   return (
     <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled || !isHomePage ? 'bg-[#F2EFEA]/95 backdrop-blur-md shadow-sm py-4' : 'bg-transparent py-6'}`}>
-      <div className="max-w-7xl mx-auto px-6 flex justify-between items-center text-[#3A3A3A]">
+      <div className={`max-w-7xl mx-auto px-6 flex justify-between items-center transition-colors duration-300 ${textColor}`}>
         {/* Logo */}
         <RouterLink to="/" className="cursor-pointer hover:opacity-80 transition flex items-center gap-3">
-          <img src="/logo.png" alt="Logo" className="h-28 w-auto object-contain" />
-          <h1 className="text-2xl font-serif font-bold tracking-widest">ALPHA</h1>
+          <img
+            src="/logo.png"
+            alt="Logo"
+            className="h-28 w-auto object-contain transition-all duration-300"
+          />
+          <div className="flex flex-col">
+            <span className="text-2xl font-serif font-bold tracking-[0.2em] leading-none">TEAM ALPHA</span>
+            <span className="text-[10px] tracking-[0.3em] font-sans uppercase mt-1 opacity-80"> - THE WEDDING ARTIST - </span>
+          </div>
         </RouterLink>
 
         {/* Desktop Menu */}
@@ -60,7 +69,7 @@ const Navbar = () => {
                 smooth={true}
                 duration={700}
                 offset={-80}
-                className="cursor-pointer hover:text-gray-600 transition"
+                className="cursor-pointer hover:opacity-70 transition"
               >
                 {link.name}
               </ScrollLink>
@@ -68,7 +77,7 @@ const Navbar = () => {
               <button
                 key={link.to}
                 onClick={() => handleNavClick(link.to)}
-                className="cursor-pointer hover:text-gray-600 transition uppercase"
+                className="cursor-pointer hover:opacity-70 transition uppercase"
               >
                 {link.name}
               </button>
@@ -76,20 +85,20 @@ const Navbar = () => {
           ))}
           <RouterLink
             to="/auth"
-            className="text-sm font-semibold tracking-widest uppercase hover:text-gray-600 transition mr-4"
+            className="text-sm font-semibold tracking-widest uppercase hover:opacity-70 transition mr-4"
           >
             Sign In
           </RouterLink>
           <RouterLink
             to="/quote"
-            className="bg-[#1C1C1C] text-white px-8 py-3 rounded-full tracking-widest text-xs uppercase hover:bg-gray-800 transition-all duration-300 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
+            className={`${scrolled || !isHomePage ? 'bg-[#1C1C1C] text-white' : 'bg-white text-[#1C1C1C]'} px-8 py-3 rounded-full tracking-widest text-xs uppercase hover:bg-gray-800 hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg`}
           >
             Get a Quote
           </RouterLink>
         </div>
 
         {/* Mobile Button */}
-        <button className="md:hidden text-[#3A3A3A]" onClick={() => setIsOpen(!isOpen)}>
+        <button className={`md:hidden transition-colors duration-300 ${textColor}`} onClick={() => setIsOpen(!isOpen)}>
           {isOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
