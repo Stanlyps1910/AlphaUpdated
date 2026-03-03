@@ -64,47 +64,7 @@ authRouter.post('/login', async (req, res) => {
     }
 });
 
-// Testimonials Route (Google Reviews)
-app.get('/api/testimonials', (req, res) => {
-    // In a production app, this would fetch from Google Places API
-    // and filter for reviews with rating >= 4.
-    const reviews = [
-        {
-            id: 1,
-            author: "Abhishek Khr",
-            rating: 5,
-            text: "We hired Team alpha photography (Yogesh) for our wedding, and it was one of the best decisions we made! From pre-wedding shoots to the final album, everything was handled with perfection.",
-            reply: "Thank you so much Abhishek! It was a pleasure capturing your special moments.",
-            date: "Recent"
-        },
-        {
-            id: 2,
-            author: "SOWMYASHREE K N",
-            rating: 5,
-            text: "Best work ever, standard is amazing, really worth for the money. If anyone looking for photography team then just go with Team Alpha without doubt.",
-            reply: "We're thrilled to hear that! Quality is our top priority.",
-            date: "Recent"
-        },
-        {
-            id: 3,
-            author: "keshava k",
-            rating: 5,
-            text: "Excellent service from Team ALPHA, highly happy with the cinematic video and also the photo quality.",
-            reply: "Happy to serve! Cinematic storytelling is what we love.",
-            date: "Recent"
-        },
-        {
-            id: 4,
-            author: "Hemanth ms",
-            rating: 5,
-            text: "I had an amazing experience with Team Alpha Photography! Their creativity and professionalism exceeded my expectations.",
-            reply: "Thanks Hemanth! Creativity is at the core of Team Alpha.",
-            date: "Recent"
-        }
-    ];
-    res.json(reviews);
-});
-
-app.use('/api/auth', authRouter);
+// Auth Router
+const authRouter = express.Router();
 
 app.listen(5000, () => console.log("Server running on port 5000"));

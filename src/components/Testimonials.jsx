@@ -3,23 +3,40 @@ import { useState, useEffect } from 'react';
 import { Star, Quote } from 'lucide-react';
 
 const Testimonials = () => {
-    const [reviews, setReviews] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        fetch('http://localhost:5000/api/testimonials')
-            .then(res => res.json())
-            .then(data => {
-                setReviews(data);
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error("Error fetching testimonials:", err);
-                setLoading(false);
-            });
-    }, []);
-
-    if (loading) return null;
+    const reviews = [
+        {
+            id: 1,
+            author: "Abhishek Khr",
+            rating: 5,
+            text: "We hired Team alpha photography (Yogesh) for our wedding, and it was one of the best decisions we made! From pre-wedding shoots to the final album, everything was handled with perfection.",
+            reply: "Thank you so much Abhishek! It was a pleasure capturing your special moments.",
+            date: "Recent"
+        },
+        {
+            id: 2,
+            author: "SOWMYASHREE K N",
+            rating: 5,
+            text: "Best work ever, standard is amazing, really worth for the money. If anyone looking for photography team then just go with Team Alpha without doubt.",
+            reply: "We're thrilled to hear that! Quality is our top priority.",
+            date: "Recent"
+        },
+        {
+            id: 3,
+            author: "keshava k",
+            rating: 5,
+            text: "Excellent service from Team ALPHA, highly happy with the cinematic video and also the photo quality.",
+            reply: "Happy to serve! Cinematic storytelling is what we love.",
+            date: "Recent"
+        },
+        {
+            id: 4,
+            author: "Hemanth ms",
+            rating: 5,
+            text: "I had an amazing experience with Team Alpha Photography! Their creativity and professionalism exceeded my expectations.",
+            reply: "Thanks Hemanth! Creativity is at the core of Team Alpha.",
+            date: "Recent"
+        }
+    ];
 
     return (
         <section className="py-24 bg-[#F2EFEA] overflow-hidden">
