@@ -136,13 +136,13 @@ const Navbar = () => {
             >
               Sign In
             </RouterLink>
-            <RouterLink
-              to="/quote"
-              onClick={() => setIsOpen(false)}
-              className="bg-[#1C1C1C] text-white px-8 py-3 rounded-full tracking-widest text-xs uppercase hover:bg-gray-800 transition-all duration-300 hover:scale-105 active:scale-95 shadow-md"
-            >
-              Get a Quote
-            </RouterLink>
+          <RouterLink
+            to="/quote"
+            onClick={() => setIsOpen(false)}
+            className="bg-[#1C1C1C] text-white px-8 py-3 rounded-full tracking-widest text-xs uppercase hover:bg-gray-800 transition-all duration-300 hover:scale-105 active:scale-95 shadow-md"
+          >
+            Get a Quote
+          </RouterLink>
           </div>
         </div>
       )}

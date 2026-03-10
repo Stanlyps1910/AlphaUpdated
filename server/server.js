@@ -64,7 +64,7 @@ authRouter.post('/login', async (req, res) => {
     }
 });
 
-// Auth Router
-const authRouter = express.Router();
+// Routes
+app.use('/api/auth', authRouter);
 
 app.listen(5000, () => console.log("Server running on port 5000"));
