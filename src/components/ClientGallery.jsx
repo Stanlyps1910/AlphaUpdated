@@ -32,7 +32,7 @@ const ClientGallery = () => {
     const canDownload = user?.permissions?.canDownload ?? true;
 
     // Cloudinary Config (Same as Gallery.jsx)
-    const CLOUD_NAME = "dvgftu6wm";
+    const CLOUD_NAME = "dq9oaglqa";
 
     useEffect(() => {
         const fetchImages = async () => {
@@ -45,7 +45,10 @@ const ClientGallery = () => {
                     tags.map(tag =>
                         fetch(`https://res.cloudinary.com/${CLOUD_NAME}/image/list/${tag}.json`)
                             .then(res => res.json())
-                            .catch(() => ({ resources: [] }))
+                            .catch((err) => {
+                                console.error(`Cloudinary fetch failed for tag ${tag}:`, err);
+                                return { resources: [] };
+                            })
                     )
                 );
 

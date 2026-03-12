@@ -43,14 +43,18 @@ const Gallery = () => {
     const [cloudData, setCloudData] = useState({});
 
     // Cloudinary Configuration
-    const CLOUD_NAME = "dvgftu6wm";
+    const CLOUD_NAME = "dq9oaglqa";
 
     useEffect(() => {
-        if (CLOUD_NAME && CLOUD_NAME !== "your_cloud_name_here") {
+        if (CLOUD_NAME) {
             // Fetch for each category
             CATEGORIES.forEach(cat => {
                 fetch(`https://res.cloudinary.com/${CLOUD_NAME}/image/list/${cat.tag}.json`)
                     .then(res => res.json())
+                    .catch((err) => {
+                        console.error(`Cloudinary fetch failed for tag ${cat.tag}:`, err);
+                        return { resources: [] };
+                    })
                     .then(data => {
                         if (data.resources) {
                             const urls = data.resources.map(res =>
@@ -59,8 +63,9 @@ const Gallery = () => {
                             setCloudData(prev => ({ ...prev, [cat.id]: urls }));
                         }
                     })
-                    .catch(() => {
-                        // Silent fail, just use local
+                    .catch((err) => {
+                        console.error(`Cloudinary fetch failed for category ${cat.id}:`, err);
+                        console.log("Tip: Ensure 'Resource List' is enabled in Cloudinary Security settings.");
                     });
             });
         }
