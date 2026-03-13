@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { Instagram, MessageCircle } from "lucide-react";
 
 export default function Header() {
   const location = useLocation();
@@ -16,9 +17,9 @@ export default function Header() {
             style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer" }}
           >
             <img
-              src="/logo_new.png"
+              src="/logo.png"
               alt="Team Alpha"
-              style={{ height: "45px", filter: "brightness(1.2)" }}
+              style={{ height: "60px", objectFit: "contain" }}
             />
             <span
               style={{
@@ -56,8 +57,9 @@ export default function Header() {
               rel="noopener noreferrer"
               aria-label="Instagram"
               className="nav-icon"
+              style={{ color: "var(--text-main)" }}
             >
-              <img src="/instagram.png" alt="Instagram" style={{ height: "20px", width: "20px", filter: "invert(1) brightness(2)" }} />
+              <Instagram size={20} />
             </a>
             <a
               href="https://wa.me/919110603953"
@@ -65,8 +67,9 @@ export default function Header() {
               rel="noopener noreferrer"
               aria-label="WhatsApp"
               className="nav-icon"
+              style={{ color: "#25D366" }}
             >
-              <img src="/assets/whatsapp.png" alt="WhatsApp" style={{ height: "20px", width: "20px" }} />
+              <MessageCircle size={20} />
             </a>
           </div>
         </nav>

@@ -1,10 +1,30 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 export default function Home() {
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                if (token) {
+                    const res = await axios.get(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/auth/me`, {
+                        headers: { 'x-auth-token': token }
+                    });
+                    setUser(res.data);
+                }
+            } catch (err) {
+                console.error("Failed to fetch user", err);
+            }
+        };
+        fetchUser();
+    }, []);
+
     return (
         <main id="home">
-            <Hero />
+            <Hero user={user} />
             <div className="section-divider"></div>
             <Testimonials />
             <CTA />
@@ -148,13 +168,14 @@ export default function Home() {
     );
 }
 
-function Hero() {
+function Hero({ user }) {
     return (
         <section className="hero">
             <div className="hero-content">
                 <p>Establishing Timeless Memories</p>
-                <h2>Luxury Wedding Photography</h2>
-                <Link to="/gallery" className="primary-btn">
+                <h2>Welcome {user ? user.firstName : ""}</h2>
+                <h3 style={{ fontSize: "1.5rem", marginBottom: "2rem", letterSpacing: "4px", color: "var(--text-muted)" }}>Luxury Wedding Photography</h3>
+                <Link to="/portal/gallery" className="primary-btn">
                     Explore The Gallery
                 </Link>
             </div>

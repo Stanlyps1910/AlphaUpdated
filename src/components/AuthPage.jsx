@@ -55,10 +55,10 @@ const AuthPage = () => {
             localStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
             
-            if (data.user.role === 'client') {
-                navigate('/portal');
+            if (data.user.role === 'admin') {
+                navigate('/admin');
             } else {
-                navigate('/');
+                navigate('/portal');
             }
         } catch (err) {
             setError(err.message);

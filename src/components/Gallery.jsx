@@ -43,7 +43,7 @@ const Gallery = () => {
     const [cloudData, setCloudData] = useState({});
 
     // Cloudinary Configuration
-    const CLOUD_NAME = "dq9oaglqa";
+    const CLOUD_NAME = "djkb4eiqf";
 
     useEffect(() => {
         if (CLOUD_NAME) {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 // CRITICAL: Ensure CLOUD_NAME is correct
-const CLOUD_NAME = "dvgftu6wm";
+const CLOUD_NAME = "djkb4eiqf";
 const CLIENT_TAG = "cclient";
 
 export default function Gallery() {

@@ -18,6 +18,16 @@ import Cloud from './pages/client/Cloud';
 import ClientHeader from './components/client/Header';
 import ClientFooter from './components/client/Footer';
 
+// Admin imports
+import AdminLayout from './admin/components/common/Layout';
+import AdminDashboard from './admin/pages/Dashboard';
+import AdminCRM from './admin/pages/CRM';
+import AdminSmartGallery from './admin/pages/SmartGallery';
+import AdminFinance from './admin/pages/Finance';
+import AdminCalendarPage from './admin/pages/Calendar';
+import AdminActivityLog from './admin/pages/ActivityLog';
+import AdminChats from './admin/pages/Chats';
+
 const PortalLayout = () => {
   return (
     <div className="app-container">
@@ -50,13 +60,26 @@ function App() {
           <Route path="/quote" element={<><Navbar /><GetQuote /><Footer /></>} />
           <Route path="/auth" element={<AuthPage />} />
 
-          {/* Protected Portal Routes */}
+          {/* Protected Portal Routes (Clients) */}
           <Route element={<ProtectedRoute allowedRoles={['client']} />}>
             <Route path="/portal" element={<PortalLayout />}>
               <Route index element={<ClientDashboard />} />
               <Route path="gallery" element={<ClientGallery />} />
               <Route path="chats" element={<Chats />} />
               <Route path="cloud" element={<Cloud />} />
+            </Route>
+          </Route>
+
+          {/* Protected Admin Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="crm" element={<AdminCRM />} />
+              <Route path="gallery" element={<AdminSmartGallery />} />
+              <Route path="finance" element={<AdminFinance />} />
+              <Route path="calendar" element={<AdminCalendarPage />} />
+              <Route path="activity-log" element={<AdminActivityLog />} />
+              <Route path="chats" element={<AdminChats />} />
             </Route>
           </Route>
         </Routes>

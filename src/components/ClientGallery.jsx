@@ -32,7 +32,7 @@ const ClientGallery = () => {
     const canDownload = user?.permissions?.canDownload ?? true;
 
     // Cloudinary Config (Same as Gallery.jsx)
-    const CLOUD_NAME = "dq9oaglqa";
+    const CLOUD_NAME = "djkb4eiqf";
 
     useEffect(() => {
         const fetchImages = async () => {

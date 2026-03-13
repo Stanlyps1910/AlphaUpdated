@@ -1,13 +1,33 @@
 import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
 
 export default function Chats() {
-    const [messages, setMessages] = useState([
-        { id: 1, text: "Hello! How can we help you today?", sender: "admin", time: "10:00 AM" },
-        { id: 2, text: "I'm interested in booking a wedding shoot.", sender: "client", time: "10:05 AM" },
-        { id: 3, text: "That's wonderful! We have several packages available. Would you like to see our brochure?", sender: "admin", time: "10:06 AM" },
-    ]);
+    const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
+    const [loading, setLoading] = useState(true);
     const messagesEndRef = useRef(null);
+
+    const fetchMessages = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) return;
+            const res = await axios.get(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/chats`, {
+                headers: { "x-auth-token": token }
+            });
+            setMessages(res.data);
+            setLoading(false);
+        } catch (err) {
+            console.error("Failed to fetch messages", err);
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchMessages();
+        // Polling for new messages
+        const interval = setInterval(fetchMessages, 3000);
+        return () => clearInterval(interval);
+    }, []);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -17,32 +37,22 @@ export default function Chats() {
         scrollToBottom();
     }, [messages]);
 
-    const handleSend = (e) => {
+    const handleSend = async (e) => {
         e.preventDefault();
         if (!newMessage.trim()) return;
 
-        const msg = {
-            id: messages.length + 1,
-            text: newMessage,
-            sender: "client",
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        };
+        try {
+            const token = localStorage.getItem("token");
+            const res = await axios.post(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/chats`, 
+                { text: newMessage, recipient: "admin" },
+                { headers: { "x-auth-token": token } }
+            );
 
-        setMessages([...messages, msg]);
-        setNewMessage("");
-
-        // Mock admin response
-        setTimeout(() => {
-            setMessages((prev) => [
-                ...prev,
-                {
-                    id: prev.length + 1,
-                    text: "Thank you for your message! An admin will get back to you shortly.",
-                    sender: "admin",
-                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                },
-            ]);
-        }, 1500);
+            setMessages([...messages, res.data]);
+            setNewMessage("");
+        } catch (err) {
+            console.error("Failed to send message", err);
+        }
     };
 
     return (
@@ -53,11 +63,18 @@ export default function Chats() {
             </div>
 
             <div className="messages-list">
+                {messages.length === 0 && !loading && (
+                    <div style={{ textAlign: 'center', color: '#888', marginTop: '20px' }}>
+                        No messages yet. Start a conversation!
+                    </div>
+                )}
                 {messages.map((msg) => (
-                    <div key={msg.id} className={`message-wrapper ${msg.sender}`}>
+                    <div key={msg._id} className={`message-wrapper ${msg.recipient === "admin" ? "client" : "admin"}`}>
                         <div className="message-bubble">
                             <p>{msg.text}</p>
-                            <span className="message-time">{msg.time}</span>
+                            <span className="message-time">
+                                {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
                         </div>
                     </div>
                 ))}
