@@ -321,6 +321,69 @@ export default function LeadDetails({ lead: initialLead, onClose, onGenerateInvo
               )}
             </div>
 
+            {/* Client Portal Section */}
+            <div className="md:col-span-2 bg-blue-50/20 p-5 rounded-2xl border border-blue-100/50 space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-blue-700">
+                   Client Portal Assets
+                </h4>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[9px] uppercase font-bold text-warmgray ml-1">Gallery Search Tag</label>
+                  {isEditing ? (
+                    <input
+                      placeholder="e.g. ananya-wedding"
+                      value={editData.galleryTag || ""}
+                      onChange={e => setEditData({ ...editData, galleryTag: e.target.value })}
+                      className="w-full bg-white border border-ivory rounded px-2 py-1.5 text-xs text-charcoal focus:outline-blue-400"
+                    />
+                  ) : (
+                    <p className="text-xs font-medium text-charcoal bg-white/50 px-2 py-1.5 rounded border border-ivory/50">
+                      {lead.galleryTag || "No tag set"}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[9px] uppercase font-bold text-warmgray ml-1">Cloud Password</label>
+                  {isEditing ? (
+                    <input
+                      placeholder="Initial password"
+                      value={editData.cloudPassword || ""}
+                      onChange={e => setEditData({ ...editData, cloudPassword: e.target.value })}
+                      className="w-full bg-white border border-ivory rounded px-2 py-1.5 text-xs text-charcoal focus:outline-blue-400"
+                    />
+                  ) : (
+                    <p className="text-xs font-medium text-charcoal bg-white/50 px-2 py-1.5 rounded border border-ivory/50">
+                      {lead.cloudPassword || "No password"}
+                    </p>
+                  )}
+                </div>
+                <div className="md:col-span-2 space-y-1">
+                  <label className="text-[9px] uppercase font-bold text-warmgray ml-1">Cloud Storage Link</label>
+                  {isEditing ? (
+                    <input
+                      placeholder="https://ug.link/..."
+                      value={editData.cloudLink || ""}
+                      onChange={e => setEditData({ ...editData, cloudLink: e.target.value })}
+                      className="w-full bg-white border border-ivory rounded px-2 py-1.5 text-xs text-charcoal focus:outline-blue-400"
+                    />
+                  ) : (
+                    <div className="flex items-center gap-2 bg-white/50 px-2 py-1.5 rounded border border-ivory/50 overflow-hidden">
+                      <p className="text-xs font-medium text-charcoal truncate flex-1">
+                        {lead.cloudLink || "No link provided"}
+                      </p>
+                      {lead.cloudLink && (
+                        <a href={lead.cloudLink} target="_blank" rel="noreferrer" className="text-blue-500 p-1 hover:bg-blue-50 rounded">
+                           Visit Link
+                        </a>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
             <div className="md:col-span-2 bg-ivory/30 p-5 rounded-2xl border border-ivory/50">
               <div className="flex items-center justify-between mb-4">
                 <h4 className="text-xs font-bold uppercase tracking-widest text-mutedbrown">Payment Plan</h4>

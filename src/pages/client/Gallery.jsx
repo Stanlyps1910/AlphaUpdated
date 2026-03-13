@@ -8,38 +8,59 @@ export default function Gallery() {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedMedia, setSelectedMedia] = useState(null);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const fetchImages = async () => {
+    const fetchUserAndImages = async () => {
+      let currentTag = CLIENT_TAG;
+
+      // 1. Fetch User Info
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
+          const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/auth/me`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (res.ok) {
+            const userData = await res.json();
+            setUser(userData);
+            // Use specific galleryTag if set, otherwise fallback to firstName (lowercase)
+            currentTag = (userData.galleryTag && userData.galleryTag.trim() !== "") 
+                         ? userData.galleryTag 
+                         : userData.firstName.toLowerCase();
+            console.log("Portal User Data:", userData);
+            console.log("Using dynamic gallery tag:", currentTag);
+          } else {
+            console.error("Failed to fetch user data for personalization");
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching user for gallery:", err);
+      }
+
       if (CLOUD_NAME === "YOUR_CLOUD_NAME_HERE") {
         setLoading(false);
         return;
       }
 
-      // Fetch both images and videos tagged with CLIENT_TAG
+      // 2. Fetch both images and videos tagged with currentTag
       const fetchByTag = async (resourceType) => {
         try {
+          // Cloudinary client-side list feature
           const response = await fetch(
-            `https://res.cloudinary.com/${CLOUD_NAME}/${resourceType}/list/${CLIENT_TAG}.json`
+            `https://res.cloudinary.com/${CLOUD_NAME}/${resourceType}/list/${currentTag}.json`
           );
-          console.log(`Cloudinary ${resourceType} Fetch Status:`, response.status);
           if (response.ok) {
             const json = await response.json();
-            console.log(`Cloudinary ${resourceType} JSON resources:`, json.resources);
             return json.resources.map(res => {
               const type = res.type || "upload";
-              // Cloudinary URL format: res.cloudinary.com/<cloud_name>/<resource_type>/<type>/v<version>/<public_id>.<format>
               const encodedPublicId = res.public_id.split('/').map(encodeURIComponent).join('/');
               const url = `https://res.cloudinary.com/${CLOUD_NAME}/${resourceType}/${type}/v${res.version}/${encodedPublicId}.${res.format}`;
-              return {
-                type: resourceType,
-                src: url,
-                publicId: res.public_id
-              };
+              return { type: resourceType, src: url, publicId: res.public_id };
             });
           }
         } catch (err) {
-          console.error(`Error fetching ${resourceType}:`, err);
+          console.error(`Error fetching ${resourceType} for ${currentTag}:`, err);
         }
         return [];
       };
@@ -51,26 +72,22 @@ export default function Gallery() {
         ]);
 
         const fetchedImages = [...imgs, ...vids];
-
         if (fetchedImages.length > 0) {
-          console.log("Total resources found:", fetchedImages.length);
           // Randomly shuffle images
           for (let i = fetchedImages.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [fetchedImages[i], fetchedImages[j]] = [fetchedImages[j], fetchedImages[i]];
           }
           setImages(fetchedImages);
-        } else {
-          console.warn("No resources found for tag:", CLIENT_TAG);
         }
       } catch (error) {
-        console.error("Critical Error during fetching:", error);
+        console.error("Critical Error during gallery loading:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchImages();
+    fetchUserAndImages();
   }, []);
 
   const downloadMedia = async (url, filename) => {
@@ -128,7 +145,7 @@ export default function Gallery() {
           </div>
         ) : (
           <div className="empty-state">
-            <p>No photos tagged with <code>{CLIENT_TAG}</code> found in Cloudinary.</p>
+            <p>Your luxury gallery is currently being curated. Check back soon for your personalized captures.</p>
           </div>
         )}
       </main>

@@ -25,6 +25,9 @@ const leadSchema = new mongoose.Schema({
     },
     totalAmount: { type: Number, default: 0 },
     depositAmount: { type: Number, default: 0 },
+    galleryTag: { type: String },
+    cloudLink: { type: String },
+    cloudPassword: { type: String }
 }, { timestamps: true });
 
 module.exports = mongoose.models.Lead || mongoose.model('Lead', leadSchema);

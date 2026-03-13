@@ -14,6 +14,14 @@ export default function LeadForm({ onClose, onLeadAdded }) {
     eventLocation: "",
     status: "New",
     remarks: "",
+    createAccount: false,
+    firstName: "",
+    lastName: "",
+    accountEmail: "",
+    password: "",
+    galleryTag: "",
+    cloudLink: "",
+    cloudPassword: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -164,6 +172,103 @@ export default function LeadForm({ onClose, onLeadAdded }) {
                 onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
               />
             </div>
+            <div className="col-span-1 md:col-span-2 space-y-1">
+              <label className="flex items-center gap-2 text-[10px] uppercase font-bold tracking-widest text-warmgray ml-1">
+                <Tag size={12} /> Gallery Search Tag
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. ananya-wedding (for Cloudinary images)"
+                className="w-full bg-ivory/40 border border-[#e6e3df] rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-mutedbrown transition-all"
+                value={formData.galleryTag}
+                onChange={(e) => setFormData({ ...formData, galleryTag: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="bg-blue-50/30 p-4 rounded-xl border border-blue-100/50 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="text-[10px] font-bold uppercase tracking-widest text-blue-700">Client Portal Account</div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer"
+                  checked={formData.createAccount}
+                  onChange={(e) => setFormData({ ...formData, createAccount: e.target.checked })}
+                />
+                <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
+            
+            {formData.createAccount && (
+              <div className="grid grid-cols-2 gap-4 animate-in slide-in-from-top-2 duration-300">
+                <div className="space-y-1">
+                  <label className="text-[9px] uppercase font-bold tracking-widest text-warmgray ml-1">First Name</label>
+                  <input
+                    required
+                    type="text"
+                    placeholder="e.g. Ananya"
+                    className="w-full bg-white border border-[#e6e3df] rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-blue-400"
+                    value={formData.firstName}
+                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[9px] uppercase font-bold tracking-widest text-warmgray ml-1">Last Name</label>
+                  <input
+                    required
+                    type="text"
+                    placeholder="e.g. Sharma"
+                    className="w-full bg-white border border-[#e6e3df] rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-blue-400"
+                    value={formData.lastName}
+                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                  />
+                </div>
+                <div className="col-span-2 space-y-1">
+                  <label className="text-[9px] uppercase font-bold tracking-widest text-warmgray ml-1">Login Email</label>
+                  <input
+                    required
+                    type="email"
+                    placeholder="client@access.com"
+                    className="w-full bg-white border border-[#e6e3df] rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-blue-400"
+                    value={formData.accountEmail}
+                    onChange={(e) => setFormData({ ...formData, accountEmail: e.target.value })}
+                  />
+                </div>
+                <div className="col-span-2 space-y-1">
+                  <label className="text-[9px] uppercase font-bold tracking-widest text-warmgray ml-1">Account Password</label>
+                  <input
+                    required
+                    type="text"
+                    placeholder="Initial password for client"
+                    className="w-full bg-white border border-[#e6e3df] rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-blue-400"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  />
+                  <p className="text-[8px] text-warmgray italic ml-1 mt-1">* Client will use this email and password to log in.</p>
+                </div>
+                <div className="col-span-2 space-y-1 pt-2 border-t border-blue-100/50 mt-2">
+                  <label className="text-[9px] uppercase font-bold tracking-widest text-[#4a5568] ml-1">Cloud Link</label>
+                  <input
+                    type="url"
+                    placeholder="https://drive.google.com/..."
+                    className="w-full bg-white border border-[#e6e3df] rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-blue-400"
+                    value={formData.cloudLink}
+                    onChange={(e) => setFormData({ ...formData, cloudLink: e.target.value })}
+                  />
+                </div>
+                <div className="col-span-2 space-y-1">
+                  <label className="text-[9px] uppercase font-bold tracking-widest text-[#4a5568] ml-1">Cloud Access Password</label>
+                  <input
+                    type="text"
+                    placeholder="Password for the link above"
+                    className="w-full bg-white border border-[#e6e3df] rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-blue-400"
+                    value={formData.cloudPassword}
+                    onChange={(e) => setFormData({ ...formData, cloudPassword: e.target.value })}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-ivory/20 p-4 rounded-xl border border-ivory/50">

@@ -1,15 +1,52 @@
 import React from 'react';
 
 const Cloud = () => {
+    const [user, setUser] = React.useState(null);
+    const [loading, setLoading] = React.useState(true);
+
+    React.useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                if (token) {
+                    const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/auth/me`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        setUser(data);
+                        console.log("Portal Cloud User Data:", data);
+                    } else {
+                        console.error("Failed to fetch user data for cloud storage");
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching user for cloud:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchUser();
+    }, []);
+
+    const cloudLink = (user?.cloudLink && user.cloudLink.trim() !== "") 
+                      ? user.cloudLink 
+                      : "https://teamalpha.studio/shared";
+    const cloudPassword = (user?.cloudPassword && user.cloudPassword.trim() !== "") 
+                          ? user.cloudPassword 
+                          : "WAITING";
+
+    if (loading) return <div className="cloud-page"><p className="text-white">Loading your secure storage...</p></div>;
+
     return (
         <div className="cloud-page">
             <div className="cloud-container">
                 <h1 className="cloud-title">Cloud Storage</h1>
-                <p className="cloud-subtitle">Access your files and shared documents</p>
+                <p className="cloud-subtitle">Securely access your high-resolution files</p>
 
                 <div className="folder-link-container">
                     <a
-                        href="https://ug.link/teamalpha/filemgr/share-download/?id=fbf3aa47779c4099a28b28e2be18e85d"
+                        href={cloudLink}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="folder-card"
@@ -19,14 +56,14 @@ const Cloud = () => {
                                 <path d="M10 4H4C2.9 4 2.01 4.9 2.01 6L2 18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V8C22 6.9 21.1 6 20 6H12L10 4Z" fill="currentColor" />
                             </svg>
                         </div>
-                        <span className="folder-text">Team Alpha Shared Files</span>
+                        <span className="folder-text">{user?.firstName ? `${user.firstName}'s` : "Team Alpha"} Shared Files</span>
                     </a>
                 </div>
 
                 <div className="password-section">
                     <p className="password-label">Access Password</p>
                     <div className="password-box">
-                        <span className="password-text">p8VJ</span>
+                        <span className="password-text">{cloudPassword}</span>
                     </div>
                 </div>
             </div>
