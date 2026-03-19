@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageSquare, Send, User } from 'lucide-react';
+import { MessageSquare, Send, User, Check, CheckCheck } from 'lucide-react';
 import axios from 'axios';
 
 export default function Chats() {
@@ -44,10 +44,27 @@ export default function Chats() {
     return () => clearInterval(interval);
   }, []);
 
+  const markAsRead = async (userId) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      await axios.put(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/chats/read`, 
+        { senderId: userId },
+        { headers: { "x-auth-token": token } }
+      );
+    } catch (err) {
+      console.error("Failed to mark messages as read", err);
+    }
+  };
+
   useEffect(() => {
     if (selectedUser) {
       fetchMessages(selectedUser.userId);
-      const interval = setInterval(() => fetchMessages(selectedUser.userId), 3000);
+      markAsRead(selectedUser.userId);
+      const interval = setInterval(() => {
+        fetchMessages(selectedUser.userId);
+        markAsRead(selectedUser.userId);
+      }, 3000);
       return () => clearInterval(interval);
     }
   }, [selectedUser]);
@@ -139,11 +156,16 @@ export default function Chats() {
               <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 bg-[#fafaf9]">
                 {messages.map((msg) => (
                   <div key={msg._id} className={`flex w-full ${msg.recipient !== "admin" ? "justify-end" : "justify-start"}`}>
-                    <div className={`max-w-[70%] p-4 rounded-2xl text-sm shadow-sm ${msg.recipient !== "admin" ? "bg-charcoal text-white rounded-br-none" : "bg-white border border-[#e6e3df] text-charcoal rounded-bl-none"}`}>
+                    <div className={`max-w-[70%] p-4 rounded-2xl text-sm shadow-sm flex flex-col ${msg.recipient !== "admin" ? "bg-charcoal text-white rounded-br-none" : "bg-white border border-[#e6e3df] text-charcoal rounded-bl-none"}`}>
                       <p>{msg.text}</p>
-                      <span className={`block text-[9px] mt-2 opacity-60 ${msg.recipient !== "admin" ? "text-right" : ""}`}>
-                        {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
+                      <div className={`flex items-center text-[9px] mt-2 opacity-60 w-full ${msg.recipient !== "admin" ? "justify-end gap-1" : "justify-start"}`}>
+                        <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        {msg.recipient !== "admin" && (
+                          <span>
+                             {msg.isRead ? <CheckCheck size={14} color="#34B7F1" /> : <Check size={14} color="#e5e5e5" />}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}

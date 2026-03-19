@@ -212,6 +212,13 @@ const Gallery = () => {
                                     </motion.div>
                                 ))}
                             </div>
+
+                            {/* Tag Footer */}
+                            <div className="mt-12 text-center pb-8">
+                                <p className="text-white/50 text-xs tracking-widest font-mono">
+                                    # {CATEGORIES.find(c => c.id === selectedAlbum)?.tag}
+                                </p>
+                            </div>
                         </div>
                     </motion.div>
                 )}

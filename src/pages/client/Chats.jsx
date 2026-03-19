@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import { Check, CheckCheck } from "lucide-react";
 
 export default function Chats() {
     const [messages, setMessages] = useState([]);
@@ -22,10 +23,27 @@ export default function Chats() {
         }
     };
 
+    const markAsRead = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) return;
+            await axios.put(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/chats/read`, 
+                { senderId: "admin" },
+                { headers: { "x-auth-token": token } }
+            );
+        } catch (err) {
+            console.error("Failed to mark messages as read", err);
+        }
+    };
+
     useEffect(() => {
         fetchMessages();
+        markAsRead();
         // Polling for new messages
-        const interval = setInterval(fetchMessages, 3000);
+        const interval = setInterval(() => {
+            fetchMessages();
+            markAsRead();
+        }, 3000);
         return () => clearInterval(interval);
     }, []);
 
@@ -70,11 +88,18 @@ export default function Chats() {
                 )}
                 {messages.map((msg) => (
                     <div key={msg._id} className={`message-wrapper ${msg.recipient === "admin" ? "client" : "admin"}`}>
-                        <div className="message-bubble">
+                        <div className="message-bubble flex flex-col">
                             <p>{msg.text}</p>
-                            <span className="message-time">
-                                {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </span>
+                            <div className="flex justify-between items-center mt-1 w-full gap-2">
+                                <span className="message-time">
+                                    {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                                {msg.recipient === "admin" && (
+                                    <span style={{ marginLeft: "4px" }}>
+                                        {msg.isRead ? <CheckCheck size={14} color="#34B7F1" /> : <Check size={14} color="#a0a0a0" />}
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     </div>
                 ))}

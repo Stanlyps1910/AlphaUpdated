@@ -1,10 +1,31 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Instagram, MessageCircle } from "lucide-react";
+import axios from "axios";
 
 export default function Header() {
   const location = useLocation();
   const pathname = location.pathname;
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const fetchUnread = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        const res = await axios.get(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/chats/unread`, {
+          headers: { "x-auth-token": token }
+        });
+        setUnreadCount(res.data.count || 0);
+      } catch (err) {
+        console.error("Failed to fetch unread chats", err);
+      }
+    };
+
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   const isActive = (path) => pathname === path;
 
@@ -43,8 +64,18 @@ export default function Header() {
           <Link to="/portal/gallery" className={isActive("/portal/gallery") ? "active" : ""}>
             Gallery
           </Link>
-          <Link to="/portal/chats" className={isActive("/portal/chats") ? "active" : ""}>
+          <Link to="/portal/chats" className={isActive("/portal/chats") ? "active" : ""} style={{ position: "relative" }}>
             Chats
+            {unreadCount > 0 && (
+              <span style={{
+                position: "absolute", top: "-5px", right: "-12px",
+                background: "#e74c3c", color: "white", fontSize: "10px",
+                padding: "2px 6px", borderRadius: "10px", fontWeight: "bold",
+                boxShadow: "0 2px 5px rgba(0,0,0,0.2)"
+              }}>
+                {unreadCount}
+              </span>
+            )}
           </Link>
           <Link to="/portal/cloud" className={isActive("/portal/cloud") ? "active" : ""}>
             Cloud

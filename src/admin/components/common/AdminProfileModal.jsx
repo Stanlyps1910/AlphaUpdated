@@ -40,7 +40,7 @@ export default function AdminProfileModal({ profile, onClose, onSave }) {
                             value={formData.name}
                             onChange={e => setFormData({ ...formData, name: e.target.value })}
                             className="w-full bg-ivory/50 border border-[#e6e3df] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-mutedbrown transition-colors font-medium text-charcoal"
-                            placeholder="e.g. Vijaya Lakshmi S"
+                            placeholder="e.g. Alpha Admin"
                         />
                     </div>
 

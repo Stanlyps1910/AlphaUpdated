@@ -1,51 +1,52 @@
-
-
 import { motion } from 'framer-motion';
+import { Phone, Mail, Instagram, MessageCircle } from 'lucide-react';
 
 const Contact = () => {
     return (
-        <section id="contact" className="py-24 px-6 bg-[#F7F5F2]">
-            <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-20">
-                {/* Info */}
-                <div className="md:w-1/3">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8 }}
-                    >
-                        <h2 className="text-4xl font-serif mb-6">Get in Touch</h2>
-                        <p className="text-gray-600 mb-8 font-light leading-relaxed">
-                            We would love to hear your story. Please fill out the form and we will get back to you shortly.
-                        </p>
-                        <div className="space-y-4 text-sm tracking-wide text-gray-800">
-                            <p>EMAIL: hello@teamalpha.com</p>
-                            <p>PHONE: +91 98765 43210</p>
-                        </div>
-                    </motion.div>
-                </div>
+        <section className="py-24 bg-white border-t border-gray-100">
+            <div className="max-w-7xl mx-auto px-6">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="text-center mb-16"
+                >
+                    <h2 className="text-4xl md:text-5xl font-serif mb-4">Get In Touch</h2>
+                    <p className="text-gray-600 font-light tracking-widest uppercase text-xs">Reach Out To Us</p>
+                </motion.div>
 
-                {/* Form */}
-                <div className="md:w-2/3">
-                    <form className="space-y-8">
-                        <div className="grid md:grid-cols-2 gap-8">
-                            <input type="text" placeholder="First Name *" className="bg-transparent border-b border-gray-400 py-3 focus:outline-none focus:border-black transition w-full placeholder-gray-500 font-light" />
-                            <input type="text" placeholder="Last Name *" className="bg-transparent border-b border-gray-400 py-3 focus:outline-none focus:border-black transition w-full placeholder-gray-500 font-light" />
-                        </div>
-                        <input type="email" placeholder="Email *" className="bg-transparent border-b border-gray-400 py-3 focus:outline-none focus:border-black transition w-full placeholder-gray-500 font-light" />
-                        <div className="grid md:grid-cols-2 gap-8">
-                            <input type="text" placeholder="Date of Event" onFocus={(e) => e.target.type = 'date'} onBlur={(e) => e.target.type = 'text'} className="bg-transparent border-b border-gray-400 py-3 focus:outline-none focus:border-black transition w-full placeholder-gray-500 font-light" />
-                            <input type="text" placeholder="Estimated Budget" className="bg-transparent border-b border-gray-400 py-3 focus:outline-none focus:border-black transition w-full placeholder-gray-500 font-light" />
-                        </div>
-                        <textarea rows="4" placeholder="Tell us about your day" className="bg-transparent border-b border-gray-400 py-3 focus:outline-none focus:border-black transition w-full placeholder-gray-500 font-light"></textarea>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {/* Phone */}
+                    <a href="tel:+919110603953" className="group flex flex-col items-center bg-[#F2EFEA] p-10 rounded-2xl hover:bg-black hover:-translate-y-2 transition-all duration-500">
+                        <Phone className="w-8 h-8 mb-6 text-gray-700 group-hover:text-white transition-colors duration-500" strokeWidth={1.5} />
+                        <h3 className="font-serif text-xl mb-2 text-black group-hover:text-white transition-colors duration-500">Phone</h3>
+                        <p className="text-sm tracking-wider font-light text-gray-500 group-hover:text-gray-300 transition-colors duration-500">+91 91106 03953</p>
+                    </a>
 
-                        <button className="mt-4 bg-[#1C1C1C] text-white px-12 py-4 tracking-widest text-xs uppercase hover:bg-opacity-80 transition duration-300">
-                            Submit Inquiry
-                        </button>
-                    </form>
+                    {/* Email */}
+                    <a href="mailto:Teamalphacrews@gmail.com" className="group flex flex-col items-center bg-[#F2EFEA] p-10 rounded-2xl hover:bg-black hover:-translate-y-2 transition-all duration-500">
+                        <Mail className="w-8 h-8 mb-6 text-gray-700 group-hover:text-white transition-colors duration-500" strokeWidth={1.5} />
+                        <h3 className="font-serif text-xl mb-2 text-black group-hover:text-white transition-colors duration-500">Email</h3>
+                        <p className="text-xs tracking-wider font-light text-gray-500 group-hover:text-gray-300 transition-colors duration-500">Drop us a line</p>
+                    </a>
+
+                    {/* WhatsApp */}
+                    <a href="https://wa.me/919110603953" target="_blank" rel="noreferrer" className="group flex flex-col items-center bg-[#F2EFEA] p-10 rounded-2xl hover:bg-black hover:-translate-y-2 transition-all duration-500">
+                        <MessageCircle className="w-8 h-8 mb-6 text-gray-700 group-hover:text-white transition-colors duration-500" strokeWidth={1.5} />
+                        <h3 className="font-serif text-xl mb-2 text-black group-hover:text-white transition-colors duration-500">WhatsApp</h3>
+                        <p className="text-sm tracking-wider font-light text-gray-500 group-hover:text-gray-300 transition-colors duration-500">Message Us</p>
+                    </a>
+
+                    {/* Instagram */}
+                    <a href="https://instagram.com/teamalpha_crew" target="_blank" rel="noreferrer" className="group flex flex-col items-center bg-[#F2EFEA] p-10 rounded-2xl hover:bg-black hover:-translate-y-2 transition-all duration-500">
+                        <Instagram className="w-8 h-8 mb-6 text-gray-700 group-hover:text-white transition-colors duration-500" strokeWidth={1.5} />
+                        <h3 className="font-serif text-xl mb-2 text-black group-hover:text-white transition-colors duration-500">Instagram</h3>
+                        <p className="text-sm tracking-wider font-light text-gray-500 group-hover:text-gray-300 transition-colors duration-500">@teamalpha_crew</p>
+                    </a>
                 </div>
             </div>
         </section>
     );
 };
+
 export default Contact;

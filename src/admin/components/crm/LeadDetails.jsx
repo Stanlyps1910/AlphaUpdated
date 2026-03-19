@@ -145,19 +145,24 @@ export default function LeadDetails({ lead: initialLead, onClose, onGenerateInvo
                     className="text-[9px] uppercase tracking-widest px-2.5 py-1 rounded-full font-bold bg-white border border-[#e6e3df] text-charcoal focus:outline-mutedbrown appearance-none"
                   >
                     <option>New</option>
+                    <option>Contacted</option>
+                    <option>Meeting Scheduled</option>
+                    <option>Quotation Sent</option>
                     <option>Follow-up</option>
-                    <option>Meeting</option>
-                    <option>Negotiation</option>
                     <option>Converted</option>
+                    <option>Cancelled</option>
                     <option>Archived</option>
                   </select>
                 ) : (
-                  <span className={`text-[9px] uppercase tracking-widest px-2.5 py-1 rounded-full font-bold ${lead.status === 'New' ? 'bg-blue-50 text-blue-600' :
+                  <span className={`text-[9px] uppercase tracking-widest px-2.5 py-1 rounded-full font-bold ${
+                    lead.status === 'New' ? 'bg-blue-50 text-blue-600' :
+                    lead.status === 'Contacted' ? 'bg-indigo-50 text-indigo-600' :
+                    lead.status === 'Meeting Scheduled' ? 'bg-purple-50 text-purple-600' :
+                    lead.status === 'Quotation Sent' ? 'bg-orange-50 text-orange-600' :
                     lead.status === 'Follow-up' ? 'bg-amber-50 text-amber-600' :
-                      lead.status === 'Meeting' ? 'bg-purple-50 text-purple-600' :
-                        lead.status === 'Negotiation' ? 'bg-orange-50 text-orange-600' :
-                          lead.status === 'Converted' ? 'bg-green-50 text-green-600' :
-                            'bg-gray-100 text-gray-600'
+                    lead.status === 'Converted' ? 'bg-green-50 text-green-600' :
+                    lead.status === 'Cancelled' ? 'bg-red-50 text-red-600' :
+                    'bg-gray-100 text-gray-600'
                     }`}>
                     {lead.status}
                   </span>

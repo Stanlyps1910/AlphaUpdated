@@ -67,8 +67,12 @@ router.get('/admin/conversations', auth, async (req, res) => {
                     userId: msg.sender,
                     userName: msg.senderName,
                     lastMessage: msg.text,
-                    timestamp: msg.timestamp
+                    timestamp: msg.timestamp,
+                    unreadCount: 0
                 };
+            }
+            if (!msg.isRead) {
+                conversations[msg.sender].unreadCount += 1;
             }
         });
 
@@ -96,6 +100,43 @@ router.get('/admin/:userId', auth, async (req, res) => {
         }).sort({ timestamp: 1 });
 
         res.json(messages);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   PUT api/chats/read
+// @desc    Mark conversation as read
+// @access  Private
+router.put('/read', auth, async (req, res) => {
+    try {
+        const { senderId } = req.body;
+        const filter = {
+            recipient: req.user.role === 'admin' ? 'admin' : req.user.id,
+            sender: senderId,
+            isRead: false
+        };
+
+        await Message.updateMany(filter, { $set: { isRead: true } });
+        res.json({ msg: 'Messages marked as read' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   GET api/chats/unread
+// @desc    Get total unread messages count
+// @access  Private
+router.get('/unread', auth, async (req, res) => {
+    try {
+        const recipientId = req.user.role === 'admin' ? 'admin' : req.user.id;
+        const count = await Message.countDocuments({
+            recipient: recipientId,
+            isRead: false
+        });
+        res.json({ count });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

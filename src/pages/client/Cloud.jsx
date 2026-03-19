@@ -10,7 +10,7 @@ const Cloud = () => {
                 const token = localStorage.getItem('token');
                 if (token) {
                     const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/auth/me`, {
-                        headers: { 'Authorization': `Bearer ${token}` }
+                        headers: { 'x-auth-token': token }
                     });
                     if (res.ok) {
                         const data = await res.json();
@@ -57,13 +57,14 @@ const Cloud = () => {
                             </svg>
                         </div>
                         <span className="folder-text">{user?.firstName ? `${user.firstName}'s` : "Team Alpha"} Shared Files</span>
+                        {user?.cloudLink && <span style={{fontSize: "0.75rem", color: "var(--primary)", marginTop: "12px", textTransform: "none", letterSpacing: "normal", fontWeight: "400", wordBreak: "break-all"}}>{user.cloudLink}</span>}
                     </a>
                 </div>
 
                 <div className="password-section">
                     <p className="password-label">Access Password</p>
                     <div className="password-box">
-                        <span className="password-text">{cloudPassword}</span>
+                        <span className="password-text" style={{ userSelect: 'all' }}>{cloudPassword}</span>
                     </div>
                 </div>
             </div>

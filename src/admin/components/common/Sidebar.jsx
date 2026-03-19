@@ -11,6 +11,9 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 
+import { useState, useEffect } from "react";
+import axios from "axios";
+
 const menuItems = [
   { name: "Dashboard", path: "/admin", icon: LayoutDashboard },
   { name: "CRM", path: "/admin/crm", icon: Users },
@@ -21,6 +24,26 @@ const menuItems = [
 ];
 
 export default function Sidebar({ onClose }) {
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const fetchUnread = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        const res = await axios.get(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/chats/unread`, {
+          headers: { "x-auth-token": token }
+        });
+        setUnreadCount(res.data.count || 0);
+      } catch (err) {
+        console.error("Failed to fetch unread chats", err);
+      }
+    };
+
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 5000);
+    return () => clearInterval(interval);
+  }, []);
   return (
     <div className="w-64 h-full bg-white border-r border-[#e6e3df] px-6 py-10 flex flex-col shadow-xl lg:shadow-none">
       <div className="flex justify-between items-center mb-12 px-2">
@@ -56,7 +79,14 @@ export default function Sidebar({ onClose }) {
           >
             {({ isActive }) => (
               <>
-                <item.icon size={20} strokeWidth={isActive ? 2 : 1.5} />
+                <div className="relative flex items-center">
+                  <item.icon size={20} strokeWidth={isActive ? 2 : 1.5} />
+                  {item.name === "Chats" && unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full z-10">
+                      {unreadCount}
+                    </span>
+                  )}
+                </div>
                 {item.name}
               </>
             )}

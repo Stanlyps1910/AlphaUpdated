@@ -26,6 +26,7 @@ export default function Home() {
         <main id="home">
             <Hero user={user} />
             <div className="section-divider"></div>
+            {user && (user.cloudLink || user.galleryTag) && <CloudAssets user={user} />}
             <Testimonials />
             <CTA />
 
@@ -163,8 +164,80 @@ export default function Home() {
                     from { opacity: 0; transform: translateY(20px); }
                     to { opacity: 1; transform: translateY(0); }
                 }
+                
+                .cloud-assets {
+                    padding: 80px 24px;
+                    background: var(--bg-card);
+                    text-align: center;
+                }
+                .cloud-assets-content {
+                    max-width: 800px;
+                    margin: 0 auto;
+                    background: white;
+                    padding: 40px;
+                    border-radius: var(--radius);
+                    border: 1px solid var(--border);
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+                }
+                .cloud-assets h3 {
+                    font-size: 1.5rem;
+                    text-transform: uppercase;
+                    letter-spacing: 4px;
+                    margin-bottom: 24px;
+                    color: var(--primary);
+                }
+                .asset-item {
+                    margin-bottom: 20px;
+                    font-size: 0.9rem;
+                    color: var(--text-main);
+                }
+                .asset-label {
+                    text-transform: uppercase;
+                    letter-spacing: 2px;
+                    color: var(--text-muted);
+                    font-size: 0.75rem;
+                    display: block;
+                    margin-bottom: 8px;
+                }
+                .asset-link {
+                    color: #1a1a1a;
+                    font-weight: 600;
+                    text-decoration: underline;
+                }
             `}} />
         </main>
+    );
+}
+
+function CloudAssets({ user }) {
+    return (
+        <section className="cloud-assets">
+            <div className="cloud-assets-content">
+                <h3>Your Premium Assets</h3>
+                {user.cloudLink && (
+                    <div className="asset-item">
+                        <span className="asset-label">Cloud Storage Link</span>
+                        <a href={user.cloudLink} target="_blank" rel="noreferrer" className="asset-link">
+                            Access Full Resolution Files Here
+                        </a>
+                    </div>
+                )}
+                {user.cloudPassword && (
+                    <div className="asset-item">
+                        <span className="asset-label">Cloud Access Password</span>
+                        <strong>{user.cloudPassword}</strong>
+                    </div>
+                )}
+                {user.galleryTag && (
+                    <div className="asset-item mt-4">
+                        <span className="asset-label">Gallery Sync Tag</span>
+                        <span style={{ fontFamily: 'monospace', background: '#f5f5f5', padding: '4px 8px', borderRadius: '4px' }}>
+                            {user.galleryTag}
+                        </span>
+                    </div>
+                )}
+            </div>
+        </section>
     );
 }
 

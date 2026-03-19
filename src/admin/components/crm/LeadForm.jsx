@@ -155,10 +155,12 @@ export default function LeadForm({ onClose, onLeadAdded }) {
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
               >
                 <option>New</option>
+                <option>Contacted</option>
+                <option>Meeting Scheduled</option>
+                <option>Quotation Sent</option>
                 <option>Follow-up</option>
-                <option>Meeting</option>
-                <option>Negotiation</option>
                 <option>Converted</option>
+                <option>Cancelled</option>
               </select>
             </div>
             <div className="col-span-1 md:col-span-2 space-y-1">

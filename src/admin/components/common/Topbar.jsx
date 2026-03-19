@@ -16,9 +16,14 @@ export default function Topbar({ onMenuClick }) {
     const [notifications, setNotifications] = useState([]);
     const notifRef = useRef(null);
 
+    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+    const defaultName = storedUser.firstName 
+        ? `${storedUser.firstName} ${storedUser.lastName || ''}`.trim() 
+        : "Alpha Admin";
+
     // Persistent profile state could be moved to Context/Redux in future
     const [adminProfile, setAdminProfile] = useState({
-        name: "Vijaya Lakshmi S",
+        name: defaultName,
         role: "Admin Registry"
     });
 

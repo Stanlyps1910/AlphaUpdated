@@ -38,8 +38,10 @@ export default function SmartGallery() {
   const [lightboxItem, setLightboxItem] = useState(null);
 
   // Folder navigation state
-  const [activeClientFolder, setActiveClientFolder] = useState(null);
-  const [activeEventFolder, setActiveEventFolder] = useState(null);
+  const [clients, setClients] = useState([]);
+  const [viewLevel, setViewLevel] = useState('clients'); // 'clients', 'events', 'images'
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
@@ -68,13 +70,20 @@ export default function SmartGallery() {
         setGalleryItems(response.data);
         const favs = new Set(response.data.filter(item => item.isFavorite).map(item => item._id));
         setFavorites(favs);
+        
+        const uniqueClients = [...new Set(response.data.map(item => item.albumName || item.clientFolder).filter(Boolean))];
+        setClients(uniqueClients.length > 0 ? uniqueClients : ["Wedding 1"]);
       } else {
         setGalleryItems(MOCK_GALLERY);
+        const uniqueClients = [...new Set(MOCK_GALLERY.map(item => item.albumName || item.clientFolder).filter(Boolean))];
+        setClients(uniqueClients.length > 0 ? uniqueClients : ["Wedding 1"]);
       }
       setLoading(false);
     } catch (err) {
       console.error("Failed to fetch gallery, utilizing local mock", err);
       setGalleryItems(MOCK_GALLERY);
+      const uniqueClients = [...new Set(MOCK_GALLERY.map(item => item.albumName || item.clientFolder).filter(Boolean))];
+      setClients(uniqueClients.length > 0 ? uniqueClients : ["Wedding 1"]);
       setLoading(false);
     }
   };
@@ -120,11 +129,9 @@ export default function SmartGallery() {
     e.preventDefault();
     setSubmitting(true);
     setUploadProgress("Preparing upload...");
-    const formData = new FormData(e.target);
-    const newClientFolder = formData.get('newClientFolder');
-    const clientFolderSelect = formData.get('clientFolderSelect');
-    const clientFolder = newClientFolder ? newClientFolder.trim() : (clientFolderSelect && clientFolderSelect !== "Select a client..." ? clientFolderSelect : 'Uncategorized');
-    const category = formData.get('category') || 'Wedding';
+
+    const clientFolder = selectedClient || 'Uncategorized';
+    const category = selectedEvent || 'Wedding';
     const generatedTitle = `${clientFolder} - ${category} Moment`;
 
     const typeMapping = { 'Image': 'image', 'Video': 'video', 'Drive Link': 'drive', 'Image Link': 'image' };
@@ -155,7 +162,7 @@ export default function SmartGallery() {
 
             const payload = {
               title: total > 1 ? `${generatedTitle} ${i + 1}` : generatedTitle,
-              albumName: generatedTitle,
+              albumName: clientFolder,
               clientFolder,
               url: res.data.url,
               category,
@@ -166,6 +173,7 @@ export default function SmartGallery() {
             newItems.push(itemRes.data);
             uploadedCount++;
             setUploadProgress(`Uploaded ${uploadedCount} of ${total} files...`);
+            toast.success("Image uploaded successfully!");
           } catch (err) {
             const backendError = err.response?.data?.error || err.message;
             console.error(`Failed to upload file ${i + 1}`, backendError);
@@ -203,7 +211,7 @@ export default function SmartGallery() {
 
         const payload = {
           title: generatedTitle,
-          albumName: generatedTitle,
+          albumName: clientFolder,
           clientFolder,
           url: finalUrl,
           category,
@@ -223,7 +231,7 @@ export default function SmartGallery() {
         setUploadProgress("Saving image link...");
         const payload = {
           title: generatedTitle,
-          albumName: generatedTitle,
+          albumName: clientFolder,
           clientFolder,
           url: imageUrl,
           category,
@@ -253,7 +261,7 @@ export default function SmartGallery() {
       const res = await axios.patch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/gallery/${id}/cover`);
       setGalleryItems(prev => prev.map(item => {
         if (item._id === id) return { ...item, isCover: true };
-        if (item.clientFolder === res.data.item.clientFolder && item.category === res.data.item.category) return { ...item, isCover: false };
+        if (item.albumName === res.data.item.albumName && item.category === res.data.item.category) return { ...item, isCover: false };
         return item;
       }));
       toast.success("Set as Folder Cover Successfully!");
@@ -263,17 +271,25 @@ export default function SmartGallery() {
     }
   };
 
+  const handleCreateWedding = () => {
+    const newName = `Wedding ${clients.length + 1}`;
+    setClients([...clients, newName]);
+    toast.success("Wedding created successfully!");
+  };
+
   const handleRenameClient = async (oldName) => {
     if (!newClientName.trim() || newClientName === oldName) return setEditingClient(null);
     try {
       await axios.patch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/gallery/rename-folder`, { oldName, newName: newClientName });
-      setGalleryItems(prev => prev.map(item => (item.clientFolder || 'Default Client') === oldName ? { ...item, clientFolder: newClientName } : item));
+      
+      setClients(clients.map(c => c === oldName ? newClientName : c));
+      setGalleryItems(prev => prev.map(item => (item.albumName === oldName || item.clientFolder === oldName) ? { ...item, clientFolder: newClientName, albumName: newClientName } : item));
       setEditingClient(null);
       setNewClientName("");
-      toast.success("Folder renamed successfully!");
+      toast.success("Wedding updated successfully!");
     } catch (err) {
       console.error(err);
-      toast.error("Failed to rename folder.");
+      toast.error("Failed to rename wedding.");
     }
   };
 
@@ -281,12 +297,12 @@ export default function SmartGallery() {
     if (!newEventName.trim() || newEventName === oldCategory) return setEditingEvent(null);
     try {
       await axios.patch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/gallery/rename-category`, {
-        clientFolder: activeClientFolder,
+        clientFolder: selectedClient,
         oldCategory,
         newCategory: newEventName
       });
       setGalleryItems(prev => prev.map(item =>
-        (item.clientFolder || 'Default Client') === activeClientFolder && item.category === oldCategory
+        (item.albumName === selectedClient || item.clientFolder === selectedClient) && item.category === oldCategory
           ? { ...item, category: newEventName }
           : item
       ));
@@ -314,23 +330,25 @@ export default function SmartGallery() {
   };
 
   const handleDeleteClient = async (clientName) => {
-    if (!window.confirm(`Are you sure you want to delete the folder "${clientName}" and ALL its media?`)) return;
+    if (!window.confirm(`Are you sure you want to delete the wedding "${clientName}" and ALL its media?`)) return;
     try {
       await axios.delete(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/gallery/folder/${encodeURIComponent(clientName)}`);
-      setGalleryItems(prev => prev.filter(i => (i.clientFolder || 'Default Client') !== clientName));
-      toast.success("Folder deleted successfully!");
+      
+      setClients(clients.filter(c => c !== clientName));
+      setGalleryItems(prev => prev.filter(i => (i.albumName || i.clientFolder) !== clientName));
+      toast.success("Wedding deleted successfully!");
       setEditingClient(null);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to delete folder.");
+      toast.error("Failed to delete wedding.");
     }
   };
 
   const handleDeleteEvent = async (eventName) => {
     if (!window.confirm(`Are you sure you want to delete the event "${eventName}" and ALL its media?`)) return;
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/gallery/folder/${encodeURIComponent(activeClientFolder)}/category/${encodeURIComponent(eventName)}`);
-      setGalleryItems(prev => prev.filter(i => !((i.clientFolder || 'Default Client') === activeClientFolder && i.category === eventName)));
+      await axios.delete(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/gallery/folder/${encodeURIComponent(selectedClient)}/category/${encodeURIComponent(eventName)}`);
+      setGalleryItems(prev => prev.filter(i => !((i.albumName === selectedClient || i.clientFolder === selectedClient) && i.category === eventName)));
       toast.success("Event folder deleted!");
       setEditingEvent(null);
     } catch (err) {
@@ -339,15 +357,8 @@ export default function SmartGallery() {
     }
   };
 
-  // Derive Client Folders
-  const clientFolders = [...new Set(galleryItems.map(item => item.clientFolder || 'Default Client'))];
-
-  // Derive Event Folders for Active Client
-  const itemsForActiveClient = galleryItems.filter(item => (item.clientFolder || 'Default Client') === activeClientFolder);
-  const eventFolders = [...new Set(itemsForActiveClient.map(item => item.category || 'Other'))];
-
   // Final Media to show
-  const filteredItems = itemsForActiveClient.filter(item => item.category === activeEventFolder);
+  const filteredItems = galleryItems.filter(item => (item.albumName === selectedClient || item.clientFolder === selectedClient) && item.category === selectedEvent);
 
   return (
     <div className="space-y-8 md:space-y-12 text-charcoal px-4 md:px-0 pb-20 mt-4 animate-in fade-in duration-1500">
@@ -358,26 +369,33 @@ export default function SmartGallery() {
           <p className="text-[10px] md:text-xs text-warmgray mt-3 font-bold uppercase tracking-[0.4em]">Organized Client Folders</p>
         </div>
         <div className="flex gap-4 w-full md:w-auto">
-          <button onClick={() => setShowUploadForm(true)} className="flex-1 md:flex-none flex items-center justify-center gap-3 bg-charcoal text-white px-6 py-4 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-mutedbrown transition-all duration-500 shadow-xl hover:shadow-2xl hover:-translate-y-1 active:scale-95">
-            <Upload size={18} />
-            Upload Media
-          </button>
+          {viewLevel === 'clients' && (
+            <button onClick={handleCreateWedding} className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white border border-ivory text-charcoal px-6 py-4 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-ivory/50 transition-all duration-500 shadow-md hover:shadow-lg hover:-translate-y-1 active:scale-95">
+              <Plus size={18} />
+              New Wedding
+            </button>
+          )}
+          {viewLevel === 'images' && (
+            <button onClick={() => setShowUploadForm(true)} className="flex-1 md:flex-none flex items-center justify-center gap-3 bg-charcoal text-white px-6 py-4 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-mutedbrown transition-all duration-500 shadow-xl hover:shadow-2xl hover:-translate-y-1 active:scale-95">
+              <Upload size={18} />
+              Upload Media
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Breadcrumb Navigation */}
       <div className="flex items-center gap-3 text-sm text-warmgray font-medium animate-in fade-in slide-in-from-left-4 duration-700 delay-200" style={{ animationFillMode: 'backwards' }}>
-        <span className="cursor-pointer hover:text-charcoal transition-colors" onClick={() => { setActiveClientFolder(null); setActiveEventFolder(null); }}>Gallery</span>
-        {activeClientFolder && (
+        <span className="cursor-pointer hover:text-charcoal transition-colors" onClick={() => { setViewLevel('clients'); setSelectedClient(null); setSelectedEvent(null); }}>Gallery</span>
+        {selectedClient && (
           <>
             <ChevronRight size={16} />
-            <span className="cursor-pointer hover:text-charcoal transition-colors" onClick={() => setActiveEventFolder(null)}>{activeClientFolder}</span>
+            <span className="cursor-pointer hover:text-charcoal transition-colors" onClick={() => { setViewLevel('events'); setSelectedEvent(null); }}>{selectedClient}</span>
           </>
         )}
-        {activeEventFolder && (
+        {selectedEvent && (
           <>
             <ChevronRight size={16} />
-            <span className="text-charcoal">{activeEventFolder}</span>
+            <span className="text-charcoal">{selectedEvent}</span>
           </>
         )}
       </div>
@@ -395,17 +413,11 @@ export default function SmartGallery() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-[10px] uppercase font-bold tracking-widest text-warmgray ml-1">Client Folder</label>
-                  <select name="clientFolderSelect" defaultValue={activeClientFolder || ""} className="w-full bg-ivory/40 border border-[#e6e3df] rounded-xl px-4 py-3 text-sm focus:outline-mutedbrown appearance-none custom-select">
-                    <option value="" disabled>Select a client...</option>
-                    {clientFolders.filter(c => c !== 'Default Client').map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                  <input type="text" name="newClientFolder" placeholder="Or type new client name..." className="w-full mt-2 bg-white border border-[#e6e3df] rounded-xl px-4 py-3 text-sm focus:outline-mutedbrown" />
+                  <input type="text" readOnly value={selectedClient || ""} className="w-full bg-ivory/40 border border-[#e6e3df] rounded-xl px-4 py-3 text-sm text-charcoal outline-none cursor-not-allowed" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] uppercase font-bold tracking-widest text-warmgray ml-1">Event Category</label>
-                  <select name="category" defaultValue={activeEventFolder || CATEGORIES[0]} className="w-full bg-ivory/40 border border-[#e6e3df] rounded-xl px-4 py-3 text-sm focus:outline-mutedbrown appearance-none custom-select">
-                    {CATEGORIES.map(c => <option key={c}>{c}</option>)}
-                  </select>
+                  <input type="text" readOnly value={selectedEvent || ""} className="w-full bg-ivory/40 border border-[#e6e3df] rounded-xl px-4 py-3 text-sm text-charcoal outline-none cursor-not-allowed" />
                 </div>
               </div>
 
@@ -472,10 +484,10 @@ export default function SmartGallery() {
       {/* Control Bar Removed as requested */}
 
       {/* LEVEL 1: Client Folders */}
-      {!activeClientFolder && (
+      {viewLevel === 'clients' && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {clientFolders.map((client, idx) => {
-            const itemsForClient = galleryItems.filter(i => (i.clientFolder || 'Default Client') === client);
+          {clients.map((client, idx) => {
+            const itemsForClient = galleryItems.filter(i => (i.albumName === client || i.clientFolder === client));
             const itemsCount = itemsForClient.length;
             const coverItem = itemsForClient.find(i => i.isCover) || itemsForClient.find(i => i.type !== 'video' && i.url) || itemsForClient[0];
             const coverUrl = coverItem && coverItem.type !== 'video' ? coverItem.url : null;
@@ -484,7 +496,12 @@ export default function SmartGallery() {
             return (
               <div
                 key={client}
-                onClick={() => !isEditing && setActiveClientFolder(client)}
+                onClick={() => {
+                  if (!isEditing) {
+                    setSelectedClient(client);
+                    setViewLevel('events');
+                  }
+                }}
                 className="group bg-white p-3 pb-6 rounded-sm border border-gray-200 shadow-md hover:shadow-2xl transition-all duration-700 cursor-pointer hover:-translate-y-2 flex flex-col relative animate-in fade-in slide-in-from-bottom-8"
                 style={{ animationDelay: `${idx * 100}ms`, animationFillMode: 'backwards' }}
               >
@@ -543,9 +560,10 @@ export default function SmartGallery() {
       )}
 
       {/* LEVEL 2: Event Folders */}
-      {activeClientFolder && !activeEventFolder && (
+      {viewLevel === 'events' && selectedClient && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {eventFolders.map((event, idx) => {
+          {["Wedding", "Engagement", "Pre-Wedding", "Haldi", "Reception"].map((event, idx) => {
+            const itemsForActiveClient = galleryItems.filter(item => (item.albumName === selectedClient || item.clientFolder === selectedClient));
             const eventItems = itemsForActiveClient.filter(i => i.category === event);
             const itemsCount = eventItems.length;
             const coverItem = eventItems.find(i => i.isCover) || eventItems.find(i => i.type !== 'video' && i.url) || eventItems[0];
@@ -555,7 +573,12 @@ export default function SmartGallery() {
             return (
               <div
                 key={event}
-                onClick={() => !isEditing && setActiveEventFolder(event)}
+                onClick={() => {
+                  if (!isEditing) {
+                    setSelectedEvent(event);
+                    setViewLevel('images');
+                  }
+                }}
                 className="group bg-white p-3 pb-6 rounded-sm border border-gray-200 shadow-md hover:shadow-2xl transition-all duration-700 cursor-pointer hover:-translate-y-2 flex flex-col relative animate-in fade-in slide-in-from-bottom-8"
                 style={{ animationDelay: `${idx * 100}ms`, animationFillMode: 'backwards' }}
               >
@@ -614,7 +637,7 @@ export default function SmartGallery() {
       )}
 
       {/* LEVEL 3: Media Grid */}
-      {activeClientFolder && activeEventFolder && (
+      {viewLevel === 'images' && selectedClient && selectedEvent && (
         <div className={`min-h-[50vh] ${viewMode === 'masonry' ? 'columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6' : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'}`}>
           {filteredItems.map((item, idx) => {
             const id = item._id || idx;
@@ -713,11 +736,11 @@ export default function SmartGallery() {
       )}
 
       {/* Empty State for Media */}
-      {activeClientFolder && activeEventFolder && filteredItems.length === 0 && (
+      {viewLevel === 'images' && selectedClient && selectedEvent && filteredItems.length === 0 && (
         <div className="py-24 text-center flex flex-col items-center opacity-70 animate-in fade-in slide-in-from-bottom-4 duration-700">
           <ImageIcon size={56} className="text-warmgray mb-6 animate-float" strokeWidth={1} />
           <p className="font-serif text-2xl text-warmgray mb-2 animate-gentle-fade">Awaiting the moments...</p>
-          <p className="text-xs text-warmgray uppercase tracking-[0.2em] font-medium">No media found in {activeEventFolder}</p>
+          <p className="text-xs text-warmgray uppercase tracking-[0.2em] font-medium">No media found in {selectedEvent}</p>
         </div>
       )}
 

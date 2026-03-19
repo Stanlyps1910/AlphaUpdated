@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 // CRITICAL: Ensure CLOUD_NAME is correct
-const CLOUD_NAME = "djkb4eiqf";
+const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "djkb4eiqf";
 const CLIENT_TAG = "cclient";
 
 export default function Gallery() {
@@ -9,6 +9,7 @@ export default function Gallery() {
   const [loading, setLoading] = useState(true);
   const [selectedMedia, setSelectedMedia] = useState(null);
   const [user, setUser] = useState(null);
+  const [displayTag, setDisplayTag] = useState(CLIENT_TAG);
 
   useEffect(() => {
     const fetchUserAndImages = async () => {
@@ -19,7 +20,7 @@ export default function Gallery() {
         const token = localStorage.getItem('token');
         if (token) {
           const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/auth/me`, {
-            headers: { 'Authorization': `Bearer ${token}` }
+            headers: { 'x-auth-token': token }
           });
           if (res.ok) {
             const userData = await res.json();
@@ -28,6 +29,7 @@ export default function Gallery() {
             currentTag = (userData.galleryTag && userData.galleryTag.trim() !== "") 
                          ? userData.galleryTag 
                          : userData.firstName.toLowerCase();
+            setDisplayTag(currentTag);
             console.log("Portal User Data:", userData);
             console.log("Using dynamic gallery tag:", currentTag);
           } else {
@@ -124,6 +126,9 @@ export default function Gallery() {
         <h2>Our Gallery</h2>
         <div className="header-line"></div>
         <p>A curated collection of captured emotions and timeless stories.</p>
+        <p style={{fontSize: "0.8rem", color: "var(--text-muted)", marginTop: "16px", opacity: 0.7}}>
+          (Admin Note: To inject Cloudinary images here, assign them the tag <strong>{displayTag}</strong>)
+        </p>
       </header>
 
       <main className="gallery-grid-wrapper">
