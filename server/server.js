@@ -66,8 +66,11 @@ authRouter.post('/login', async (req, res) => {
     try {
         const { email, password, role } = req.body;
 
-        // --- ADMIN BYPASS START ---
-        if (email === "admin@alpha.com" && password === "AlphaAdmin123") {
+        // --- ADMIN LOGIN WITH ENV VARS ---
+        if (
+            process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD &&
+            email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD
+        ) {
             const payload = { user: { id: "hardcoded-admin-id", role: "admin" } };
             const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' });
             return res.json({ 
@@ -75,7 +78,7 @@ authRouter.post('/login', async (req, res) => {
                 user: { id: "hardcoded-admin-id", firstName: "System", lastName: "Admin", email, role: "admin" } 
             });
         }
-        // --- ADMIN BYPASS END ---
+        // --- ADMIN LOGIN END ---
 
         const user = await User.findOne({ email });
 
