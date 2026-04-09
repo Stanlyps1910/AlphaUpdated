@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --luxury-beige: #F5F5DC;
+  --luxury-cream: #FFFDD0;
+  --luxury-gold: #D4AF37;
+  --luxury-lavender: #E6E6FA;
+  --luxury-text-main: #1A1A1A;
+  --luxury-text-muted: #666666;
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --soft-shadow: 0 8px 30px rgba(0, 0, 0, 0.08); /* Updated premium shadow */
+}
+
+@layer base {
+  body {
+    @apply antialiased text-stone-900;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--luxury-beige);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif tracking-tight text-stone-800;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.03); opacity: 1; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInFromLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.animate-float { animation: float 6s ease-in-out infinite; }
+.animate-breathe { animation: breathe 4s ease-in-out infinite; }
+.animate-fade-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-slide-in { animation: slideInFromLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px; /* Standardize at 20px */
+  box-shadow: var(--soft-shadow);
+  padding: 24px; /* Reduced for compactness */
+  transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+}
+
+.icon-wrapper {
+  @apply w-12 h-12 rounded-full flex items-center justify-center border border-white/60 bg-gradient-to-br from-white/40 to-luxury-gold/10 shadow-sm transition-all duration-300;
+}
+
+.icon-wrapper lucide {
+  @apply text-luxury-gold/70;
+}
+
+.luxury-gradient-bg {
+  background: linear-gradient(135deg, #F9F7F4 0%, #EBE7E0 100%);
+  background-attachment: fixed;
+}
+
+.btn-luxury-primary {
+  @apply relative overflow-hidden bg-black text-white px-8 py-3 rounded-full font-bold uppercase tracking-widest text-[10px] shadow-xl transition-all duration-300 active:scale-95;
+}
+
+.btn-luxury-primary:hover {
+  @apply -translate-y-0.5 scale-[1.03];
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+}
+
+.btn-glass-secondary {
+  @apply bg-white/40 backdrop-blur-md border border-white/60 px-8 py-3 rounded-full font-bold uppercase tracking-widest text-[10px] transition-all duration-300 active:scale-95 text-stone-600;
+}
+
+.btn-glass-secondary:hover {
+  @apply bg-white/60 border-white/80 -translate-y-0.5 scale-[1.03] text-black;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* Masonry for Gallery */
+.my-masonry-grid {
+  display: flex;
+  margin-left: -24px;
+  width: auto;
+}
+
+.my-masonry-grid_column {
+  padding-left: 24px;
+  background-clip: padding-box;
+}
+
+.my-masonry-grid_column > div {
+  margin-bottom: 24px;
+}
