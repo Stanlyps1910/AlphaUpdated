@@ -1,7 +1,1 @@
-# Ignore node_modules everywhere
-node_modules
-
-# Ignore environment files (contain secrets!)
-.env
-backend/.env
-frontend/.env
+# Everything is being tracked.
