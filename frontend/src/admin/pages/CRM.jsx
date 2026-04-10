@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useOutletContext } from "react-router-dom";
 import axios from "axios";
-import { Plus, Search, Filter, MoreHorizontal, FileText, CheckSquare, Users } from "lucide-react";
+import { Plus, Search, Filter, MoreHorizontal, FileText, CheckSquare, Users, ArrowUpDown } from "lucide-react";
 import LeadDetails from "../components/crm/LeadDetails";
 import LeadForm from "../components/crm/LeadForm";
 import InvoiceForm from "../components/crm/InvoiceForm";
@@ -23,6 +23,7 @@ export default function CRM() {
   const [editingInvoice, setEditingInvoice] = useState(null);
   const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
   const [filterStatus, setFilterStatus] = useState("All");
+  const [sortOrder, setSortOrder] = useState("Newest First");
   const { setIsFocusMode } = useOutletContext();
   const [user, setUser] = useState(null);
 
@@ -43,7 +44,7 @@ export default function CRM() {
     if (setIsFocusMode) {
       setIsFocusMode(isAnyModalOpen);
     }
-    
+
     if (isAnyModalOpen) {
       document.body.style.overflow = 'hidden';
     } else {
@@ -148,6 +149,17 @@ export default function CRM() {
     const emailMatch = (lead.email || "").toLowerCase().includes(searchQuery.toLowerCase());
     const matchesFilter = filterStatus === "All" || lead.status === filterStatus;
     return (nameMatch || emailMatch) && matchesFilter;
+  }).sort((a, b) => {
+    if (sortOrder === "Newest First") {
+      return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+    } else if (sortOrder === "Oldest First") {
+      return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
+    } else if (sortOrder === "A-Z") {
+      return (a.name || "").localeCompare(b.name || "");
+    } else if (sortOrder === "Z-A") {
+      return (b.name || "").localeCompare(a.name || "");
+    }
+    return 0;
   });
 
   return (
@@ -160,9 +172,9 @@ export default function CRM() {
         <button
           onClick={() => {
             if (activeTab === 'invoices') {
-                setEditingInvoice(null);
-                setInvoiceDefaults({ clientName: "" });
-                setShowInvoiceForm(true);
+              setEditingInvoice(null);
+              setInvoiceDefaults({ clientName: "" });
+              setShowInvoiceForm(true);
             }
             else if (activeTab === 'team' || activeTab === 'tasks') setShowLeadForm(false);
             else setShowLeadForm(true);
@@ -228,6 +240,19 @@ export default function CRM() {
                     <option value="Converted">Converted</option>
                   </select>
                   <Filter size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-warmgray" />
+                </div>
+                <div className="relative">
+                  <select
+                    className="appearance-none flex items-center justify-center gap-2 px-8 py-3 bg-white border border-[#e6e3df] rounded-2xl text-[10px] font-bold uppercase tracking-widest text-warmgray hover:text-charcoal transition-all shadow-sm focus:outline-none"
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(e.target.value)}
+                  >
+                    <option value="Newest First">Newest First</option>
+                    <option value="Oldest First">Oldest First</option>
+                    <option value="A-Z">Name (A-Z)</option>
+                    <option value="Z-A">Name (Z-A)</option>
+                  </select>
+                  <ArrowUpDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-warmgray" />
                 </div>
               </div>
               <div className="hidden md:block text-[10px] uppercase tracking-widest font-bold text-warmgray bg-ivory/50 px-4 py-2 rounded-full">
@@ -334,64 +359,63 @@ export default function CRM() {
         {
           activeTab === 'invoices' && (
             <div className="bg-white rounded-3xl border border-[#e6e3df]/40 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="p-6 border-b border-ivory/50 flex justify-between items-center bg-ivory/10">
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-charcoal">Registry of Generated Invoices</h3>
-                    <div className="text-[10px] font-bold text-warmgray uppercase tracking-widest">{invoices.length} Invoices Found</div>
-                </div>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead>
-                            <tr className="border-b border-ivory text-[10px] uppercase tracking-widest text-warmgray">
-                                <th className="px-8 py-6 font-bold">Client / Date</th>
-                                <th className="px-8 py-6 font-bold">Status</th>
-                                <th className="px-8 py-6 font-bold">Total Amount</th>
-                                <th className="px-8 py-6 font-bold text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-ivory text-sm">
-                            {invoices.length > 0 ? invoices.map((inv, idx) => (
-                                <tr key={inv._id} className="hover:bg-ivory/5 transition-colors group">
-                                    <td className="px-8 py-6">
-                                        <div className="font-bold text-charcoal">{inv.clientName}</div>
-                                        <div className="text-[10px] text-warmgray mt-1">{new Date(inv.invoiceDate).toLocaleDateString()}</div>
-                                    </td>
-                                    <td className="px-8 py-6">
-                                        <span className={`px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest ${
-                                            inv.status === 'Paid' ? 'bg-green-50 text-green-600' :
-                                            inv.status === 'Cancelled' ? 'bg-red-50 text-red-600' :
-                                            'bg-amber-50 text-amber-600'
-                                        }`}>
-                                            {inv.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-8 py-6 font-serif text-charcoal">
-                                        ₹{inv.total?.toLocaleString('en-IN')}
-                                    </td>
-                                    <td className="px-8 py-6 text-right">
-                                        <div className="flex justify-end gap-2">
-                                            <button 
-                                                onClick={() => { setEditingInvoice(inv); setShowInvoiceForm(true); }}
-                                                className="p-2 hover:bg-ivory rounded-lg text-warmgray hover:text-charcoal transition-colors"
-                                            >
-                                                <FileText size={16} />
-                                            </button>
-                                            <button 
-                                                onClick={(e) => deleteInvoice(inv._id, e)}
-                                                className="p-2 hover:bg-red-50 rounded-lg text-warmgray hover:text-red-500 transition-colors"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            )) : (
-                                <tr>
-                                    <td colSpan="4" className="px-8 py-20 text-center text-warmgray italic">No invoices found. Generate one from a lead!</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+              <div className="p-6 border-b border-ivory/50 flex justify-between items-center bg-ivory/10">
+                <h3 className="text-sm font-bold uppercase tracking-widest text-charcoal">Registry of Generated Invoices</h3>
+                <div className="text-[10px] font-bold text-warmgray uppercase tracking-widest">{invoices.length} Invoices Found</div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b border-ivory text-[10px] uppercase tracking-widest text-warmgray">
+                      <th className="px-8 py-6 font-bold">Client / Date</th>
+                      <th className="px-8 py-6 font-bold">Status</th>
+                      <th className="px-8 py-6 font-bold">Total Amount</th>
+                      <th className="px-8 py-6 font-bold text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-ivory text-sm">
+                    {invoices.length > 0 ? invoices.map((inv, idx) => (
+                      <tr key={inv._id} className="hover:bg-ivory/5 transition-colors group">
+                        <td className="px-8 py-6">
+                          <div className="font-bold text-charcoal">{inv.clientName}</div>
+                          <div className="text-[10px] text-warmgray mt-1">{new Date(inv.invoiceDate).toLocaleDateString()}</div>
+                        </td>
+                        <td className="px-8 py-6">
+                          <span className={`px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest ${inv.status === 'Paid' ? 'bg-green-50 text-green-600' :
+                              inv.status === 'Cancelled' ? 'bg-red-50 text-red-600' :
+                                'bg-amber-50 text-amber-600'
+                            }`}>
+                            {inv.status}
+                          </span>
+                        </td>
+                        <td className="px-8 py-6 font-serif text-charcoal">
+                          ₹{inv.total?.toLocaleString('en-IN')}
+                        </td>
+                        <td className="px-8 py-6 text-right">
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => { setEditingInvoice(inv); setShowInvoiceForm(true); }}
+                              className="p-2 hover:bg-ivory rounded-lg text-warmgray hover:text-charcoal transition-colors"
+                            >
+                              <FileText size={16} />
+                            </button>
+                            <button
+                              onClick={(e) => deleteInvoice(inv._id, e)}
+                              className="p-2 hover:bg-red-50 rounded-lg text-warmgray hover:text-red-500 transition-colors"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )) : (
+                      <tr>
+                        <td colSpan="4" className="px-8 py-20 text-center text-warmgray italic">No invoices found. Generate one from a lead!</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )
         }
@@ -424,12 +448,12 @@ export default function CRM() {
 
       {
         showInvoiceForm && (
-          <div 
+          <div
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 w-screen h-screen"
-            style={{ 
-                background: 'rgba(0, 0, 0, 0.3)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)'
+            style={{
+              background: 'rgba(0, 0, 0, 0.3)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)'
             }}
           >
             <InvoiceForm
